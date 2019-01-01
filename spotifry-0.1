@@ -1,0 +1,87 @@
+#!/usr/bin/env bash
+#===================================>
+#Autor ==> Carlos Raimundo de Freitas Sotero
+#Contato ==> carlosrfs99@gmail.com
+#===================================>
+azul="\033[34;1m"
+fim="\033[m"
+#===============Váriaveis===========>
+#================Funções============>
+logo(){
+echo -e "$azul
+                                                                                                                                                     
+                                                                                                                                                     
+   SSSSSSSSSSSSSSS                                              tttt            iiii     ffffffffffffffff                                            
+ SS:::::::::::::::S                                          ttt:::t           i::::i   f::::::::::::::::f                                           
+S:::::SSSSSS::::::S                                          t:::::t            iiii   f::::::::::::::::::f                                          
+S:::::S     SSSSSSS                                          t:::::t                   f::::::fffffff:::::f                                          
+S:::::S           ppppp   ppppppppp      ooooooooooo   ttttttt:::::ttttttt    iiiiiii  f:::::f       ffffffrrrrr   rrrrrrrrryyyyyyy           yyyyyyy
+S:::::S           p::::ppp:::::::::p   oo:::::::::::oo t:::::::::::::::::t    i:::::i  f:::::f             r::::rrr:::::::::ry:::::y         y:::::y 
+ S::::SSSS        p:::::::::::::::::p o:::::::::::::::ot:::::::::::::::::t     i::::i f:::::::ffffff       r:::::::::::::::::ry:::::y       y:::::y  
+  SS::::::SSSSS   pp::::::ppppp::::::po:::::ooooo:::::otttttt:::::::tttttt     i::::i f::::::::::::f       rr::::::rrrrr::::::ry:::::y     y:::::y   
+    SSS::::::::SS  p:::::p     p:::::po::::o     o::::o      t:::::t           i::::i f::::::::::::f        r:::::r     r:::::r y:::::y   y:::::y    
+       SSSSSS::::S p:::::p     p:::::po::::o     o::::o      t:::::t           i::::i f:::::::ffffff        r:::::r     rrrrrrr  y:::::y y:::::y     
+            S:::::Sp:::::p     p:::::po::::o     o::::o      t:::::t           i::::i  f:::::f              r:::::r               y:::::y:::::y      
+            S:::::Sp:::::p    p::::::po::::o     o::::o      t:::::t    tttttt i::::i  f:::::f              r:::::r                y:::::::::y       
+SSSSSSS     S:::::Sp:::::ppppp:::::::po:::::ooooo:::::o      t::::::tttt:::::ti::::::if:::::::f             r:::::r                 y:::::::y        
+S::::::SSSSSS:::::Sp::::::::::::::::p o:::::::::::::::o      tt::::::::::::::ti::::::if:::::::f             r:::::r                  y:::::y         
+S:::::::::::::::SS p::::::::::::::pp   oo:::::::::::oo         tt:::::::::::tti::::::if:::::::f             r:::::r                 y:::::y          
+ SSSSSSSSSSSSSSS   p::::::pppppppp       ooooooooooo             ttttttttttt  iiiiiiiifffffffff             rrrrrrr                y:::::y           
+                   p:::::p                                                                                                        y:::::y            
+                   p:::::p                                                                                                       y:::::y             
+                  p:::::::p                                                                                                     y:::::y              
+                  p:::::::p                                                                                                    y:::::y               
+                  p:::::::p                                                                                                   yyyyyyy                
+                  ppppppppp                                                                                                                          
+                                                                                                                                                     
+
+$fim
+"
+}
+link(){
+    while ((1==1)); do	#o menu que aparecerá para o usuário esta abaixo, todo feito numa inputbox do dialog
+        a=$( dialog --stdout --colors --inputbox "\Z11-\Z0Buscar uma Música na lista:\n\Z12-\Z0Adicionar uma Música na lista:\n\Z13-\Z0Sair:" 10 50 )
+        case $a in
+	    1) nome=$( dialog --stdout --colors --inputbox "Digite o nome da Música:" 10 50)
+	       link=$(grep "$nome" "repo" | cut -d '\' -f 3)                                #"repo" é o arquivo onde ficam os links e demais
+	       break#é necessario quebrar o loop para a função "link" encerrar e            #informações de cada música.
+	       ;;   #a função "play" seguir sua execução
+	    
+	    2) nome=$( dialog --stdout --colors --inputbox "Digite o nome da Música:" 10 50)
+	       link=$( dialog --stdout --colors --inputbox "Digite o link da Música:" 10 50)
+	       arq=$(grep "" "arq.txt")
+	       echo "$arq'\'$nome'\'$link" >> repo #Todas as musicas em repo recebem um número único aquela música, um nome dado pelo proprio usuário e o link de onde serao carregadas pelo ffplay
+	       arq=$(($arq+1)) #Para aumentar o numero, assim a proxima música a ser adicionada,
+	       rm arq.txt      #terá um numero de referencia uma unidade maior, facilitando a procura
+	       echo $arq >> arq.txt
+	       break #Novamente é necessário quebrar o loop para continuar
+	       ;;
+	    3) dialog --stdout --colors --yesno "Deseja mesmo sair?" 10 50
+	       if [ "$?" == "1" ]; then
+		   continue
+	       else
+		   exit 0
+	       fi
+	       ;;
+            *) dialog --stdout --colors --msgbox "Comando invalido tente novamente." 
+	       continue
+	       ;;
+        esac
+    done
+}
+play(){
+    link
+    dialog --colors --yesno "\Z1Deseja Reproduzi-la?" 10 50
+    if [ "$?" == "1" ]; then 
+	echo "Saindo" 
+	exit 0
+    else
+	clear 
+        ffplay -vn -nodisp -loglevel -8 $link
+    fi
+}                                   
+#===================================>
+clear
+logo
+sleep 1s
+play
